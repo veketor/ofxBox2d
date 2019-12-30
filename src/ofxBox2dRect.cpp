@@ -162,7 +162,8 @@ void ofxBox2dRect::draw() {
     ofPushMatrix();
     ofTranslate(ofxBox2dBaseShape::getPosition());
     ofRotateDeg(getRotation());
-    mesh.draw();
+    //mesh.draw();
+	mesh.drawWireframe();
     ofPopMatrix();
 
     /*

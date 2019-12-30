@@ -25,6 +25,7 @@ void ofxBox2dRender::DrawPolygon(const b2Vec2* vertices, int32 vertexCount, cons
 void ofxBox2dRender::DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color) {
 	
 	ofSetHexColor(0xffffff);
+	ofNoFill();
 	ofBeginShape();
 	for(int i=0; i<vertexCount; ++i) {
 		ofVec2f p = ofxBox2d::toOf(vertices[i]);
