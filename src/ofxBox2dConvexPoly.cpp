@@ -120,7 +120,7 @@ void ofxBox2dConvexPoly::setScale(float _scale){
     
     b2PolygonShape* shape = (b2PolygonShape*) fix->GetShape();
     
-    for (int i = 0; i < polyPts.size(); i++){
+    for (size_t i = 0; i < polyPts.size(); i++){
         shape->m_vertices[i].Set(polyPts[i].x*scale, polyPts[i].y*scale); 
     }
     

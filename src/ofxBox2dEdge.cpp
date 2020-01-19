@@ -64,7 +64,7 @@ void ofxBox2dEdge::create(b2World * b2dworld) {
  */
 //----------------------------------------
 void ofxBox2dEdge::addVertexes(vector <ofVec2f> &pts) {
-	for (int i=0; i<pts.size(); i++) {
+	for (size_t i=0; i<pts.size(); i++) {
         ofPolyline::addVertex(pts[i].x, pts[i].y);
 	}
     flagHasChanged();
@@ -72,7 +72,7 @@ void ofxBox2dEdge::addVertexes(vector <ofVec2f> &pts) {
 
 //----------------------------------------
 void ofxBox2dEdge::addVertexes(ofPolyline &polyline) {
-	for (int i=0; i<polyline.size(); i++) {
+	for (size_t i=0; i<polyline.size(); i++) {
 		ofPolyline::addVertex(polyline[i].x, polyline[i].y);
 	}
     flagHasChanged();

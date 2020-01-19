@@ -91,3 +91,5 @@ libs/Box2D/Documentation
 libs/Box2D/CMakeLists.txt
 libs/liquidfun/.gitignore
 libs/liquidfun/.gitattributes
+/box2dJump/.vs/box2dJump/v15/Browse.VC.db
+/box2dJump/.vs/box2dJump/v15/Solution.VC.db

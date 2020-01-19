@@ -297,7 +297,7 @@ void ofxBox2dPolygon::drawTriangles() {
 	ofPushMatrix();
 	ofTranslate(getPosition());
 	ofRotateDeg(getRotation(), 0, 0, 1);
-	for (int i=0; i<triangles.size(); i++) {
+	for (size_t i=0; i<triangles.size(); i++) {
 		triangles[i].draw();
 	}
 	ofPopMatrix();

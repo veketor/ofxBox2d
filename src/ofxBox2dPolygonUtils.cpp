@@ -141,7 +141,7 @@ vector <TriangleShape> ofxBox2dPolygonUtils::triangulate(ofPolyline contour, flo
 	
 	// now, with the new, potentially smaller group of points, update all the indices of the triangles so their indices point right:
 	
-	for (int i = 0; i < triangles.size(); i++){
+	for (size_t i = 0; i < triangles.size(); i++){
 		for (int j = 0; j < 3; j++){
 			triangles[i].index[j] = indexChanges[triangles[i].index[j]];
 		}

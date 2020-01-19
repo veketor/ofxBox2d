@@ -152,7 +152,7 @@ void ParticleSystem::removeParticle(int index) {
 //--------------------------------------------------------------
 void ParticleSystem::setRadius(float radius) {
 	particleSystem->SetRadius(ofxBox2d::toB2d(radius));
-	#pragma warning maybe recaluelate the particle inter ?
+	//#pragma _warning_ maybe recalculate the particle inter ?
 }
 
 //--------------------------------------------------------------
