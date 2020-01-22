@@ -4,7 +4,7 @@
 #include "ofxBox2d.h"
 #include "b2Body.h"
 #include "ofxKeyboard.h"
-#include "ofxProtoBodies.h"
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -49,6 +49,7 @@ class ofApp : public ofBaseApp{
 		std::shared_ptr <ofxBox2dRect> npc;
 		b2Body* createdBody;
 		oxfProtoBodies bodiesLoader;
+		std::shared_ptr <ofxBox2dCompoundBody> compoundBody;
 	private:
 		ofxKeyboard* key;
 		_moveState moveState;

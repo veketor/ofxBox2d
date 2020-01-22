@@ -77,6 +77,12 @@ void ofApp::setup()
 	createdBody = pb3.create(box2d.getWorld());
 	int a = 0;
 	a = 1;
+	compoundBody = make_shared<ofxBox2dCompoundBody>();
+	compoundBody->setup(box2d.getWorld(), pb);
+	auto pos = compoundBody->getPosition();
+	auto isBody = compoundBody->isBody();
+
+	a = 2;
 }
 
 //--------------------------------------------------------------
@@ -128,6 +134,7 @@ void ofApp::update()
 //--------------------------------------------------------------
 void ofApp::draw()
 {
+	ofDrawBitmapString("Cuerpos "+ ofToString(box2d.getBodyCount()), 10, 10);
 	ofNoFill();
 	npc->draw();
 	platform->draw();
