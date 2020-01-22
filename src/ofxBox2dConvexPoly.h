@@ -1,5 +1,3 @@
-
-
 #pragma once
 #include "ofMain.h"
 #include "ofxBox2dBaseShape.h"
@@ -35,7 +33,7 @@ public:
     float ghettoRadius;
     
     b2PolygonShape shape;
-		ofVboMesh gpuCachedTesselation;
+	ofVboMesh gpuCachedTesselation;
     ofPolyline polyPts;
     float scale;
     
