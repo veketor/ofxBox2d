@@ -10,7 +10,7 @@ void ofxBox2dCompoundBody::setup(b2World * b2dworld, protoBody protoBody)
 		ofLog(OF_LOG_NOTICE, "ofxBox2dCompoundBody :: setup : - must have a valid world -");
 		return;
 	}
-	float scale = 1.0f/ofxBox2d::getScale();
+	double scale = 1.0f/ofxBox2d::getScale();
 	gpuCachedCompoundBody = protoBody.mesh;
 	name = protoBody.name;
 	bodyDef.type = protoBody.type;
@@ -61,7 +61,8 @@ void ofxBox2dCompoundBody::draw()
 	ofTranslate(getPosition());
 	auto r = getRotation();
 	ofRotateDeg(getRotation(), 0, 0, 1);
-	gpuCachedCompoundBody.draw();
+	//gpuCachedCompoundBody.draw();
 	gpuCachedCompoundBody.drawWireframe();
+	gpuCachedCompoundBody.drawVertices();
 	ofPopMatrix();
 }

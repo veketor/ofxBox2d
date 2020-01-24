@@ -56,6 +56,8 @@ bool oxfProtoBodies::loadFromXml(std::string xmlFilePath)
 				tempPoints.push_back(pV);
 				tempFixture.polygons.push_back(tempPoints);
 				ofMesh tempMesh;
+				tempMesh.enableIndices();
+				tempMesh.setMode(OF_PRIMITIVE_LINE_LOOP);
 				tempMesh.addVertex(ofDefaultVec3(circleX, circleY, 0));
 				float cx, cy;
 				for (size_t i = 0; i < circleResolution; i++)
@@ -64,16 +66,21 @@ bool oxfProtoBodies::loadFromXml(std::string xmlFilePath)
 					cx = circleX + circleRadious * cos(angle);
 					cy = circleY + circleRadious * sin(angle);
 
-					ofDefaultVec3 tempVertex(cx, cy, 0);
-					tempMesh.addVertex(tempVertex);
-					if (i % 2 != 0)
+					ofDefaultVec3 tempVertex(cx, cy, 0);					
+					//tempMesh.addVertex(tempVertex);
+					tempMesh.addVertex(ofDefaultVec3(cx, cy, 0));
+
+					if (i>0)
 					{
 						tempMesh.addIndex(0);
 						tempMesh.addIndex(i);
 						tempMesh.addIndex(i+1);
 					}
-					
 				}
+				tempMesh.addIndex(0);
+				tempMesh.addIndex(1);
+				tempMesh.addIndex(circleResolution);
+				
 				tempBody.mesh.append(tempMesh);
 			}
 			else if (fixtureInfoType == "POLYGON")
@@ -81,6 +88,10 @@ bool oxfProtoBodies::loadFromXml(std::string xmlFilePath)
 				std::cout << "\t\t[POLYGON]\n";
 				tempFixture.fixture_type = b2Shape::e_polygon;
 				ofXml::Search polygonsXml = fixtureInfo.findFirst("polygons").find("polygon");
+				ofMesh tempMesh;
+				tempMesh.enableIndices();
+				tempMesh.setMode(OF_PRIMITIVE_LINE_LOOP);
+
 				for (auto &polygon : polygonsXml)
 				{
 					std::string polygonStr = polygon.getValue();
@@ -94,6 +105,8 @@ bool oxfProtoBodies::loadFromXml(std::string xmlFilePath)
 						try
 						{
 							tempPoint.set(std::stof(tempValues.at(0)), stof(tempValues.at(1)));
+							tempMesh.addVertex(ofDefaultVec3(tempPoint.x, tempPoint.y, 0));
+							//tempMesh.addIndex(i);
 							std::cout << "\t\t\t Point at: (" << tempPoint.x << ", " << tempPoint.y << ")\n";
 						}
 						catch (const std::invalid_argument& ia) {
@@ -101,8 +114,31 @@ bool oxfProtoBodies::loadFromXml(std::string xmlFilePath)
 						}
 						tempPointsVector.push_back(tempPoint);
 					}
+
+					int lastValidIndex = 0;
+					for (size_t gIndex = 0; gIndex < tempMesh.getNumVertices()/3; gIndex++)
+					{
+						tempMesh.addIndex(3* gIndex);
+						tempMesh.addIndex(3 * gIndex + 1);
+						lastValidIndex = 3 * gIndex + 2;
+						tempMesh.addIndex(lastValidIndex);
+					}
+					size_t unwindingNumVertex = tempMesh.getNumIndices() - lastValidIndex;
+					if (unwindingNumVertex == 1)
+					{						
+						tempMesh.addIndex(unwindingNumVertex + 1);
+						tempMesh.addIndex(unwindingNumVertex + 2);
+						tempMesh.addIndex(0);
+					}
+					else if (unwindingNumVertex == 2)
+					{
+						tempMesh.addIndex(unwindingNumVertex);
+						tempMesh.addIndex(unwindingNumVertex + 1);
+						tempMesh.addIndex(unwindingNumVertex + 2);
+					}
 					tempFixture.polygons.push_back(tempPointsVector);
 				}
+				tempBody.mesh.append(tempMesh);
 			}
 			tempBody.fixtures.push_back(tempFixture);
 		}

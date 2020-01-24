@@ -68,20 +68,22 @@ void ofApp::setup()
 	prota->body->SetUserData(protaUserData);
 	key = ofxKeyboard::get();
 	moveState = MS_STOP;
-	auto loaded = bodiesLoader.loadFromXml("test.xml");
+	auto loaded = bodiesLoader.loadFromXml("test2.xml");
 	auto pb = bodiesLoader.getProtoBody("coyote", "enemy");
 	auto pb0 = bodiesLoader.getProtoBody("coyote");
 	auto pb1 = bodiesLoader.getProtoBody("plataforma");
 	auto pb2 = bodiesLoader.getProtoBody("logo");
 	auto pb3 = bodiesLoader.getProtoBody("compuesto");
-	createdBody = pb3.create(box2d.getWorld());
+	auto pb4 = bodiesLoader.getProtoBody("lollipop");
+	//createdBody = pb4.create(box2d.getWorld());
 	int a = 0;
 	a = 1;
 	compoundBody = make_shared<ofxBox2dCompoundBody>();
-	compoundBody->setup(box2d.getWorld(), pb);
+	compoundBody->setup(box2d.getWorld(), pb4);
 	auto pos = compoundBody->getPosition();
 	auto isBody = compoundBody->isBody();
-
+	compoundBody->setPosition(ofVec2f(690, 300));
+	auto pos2 = compoundBody->getPosition();
 	a = 2;
 }
 
@@ -152,6 +154,7 @@ void ofApp::draw()
 	info += "FPS: " + ofToString(ofGetFrameRate(), 1) + "\n";
 	ofSetHexColor(0x444342);
 	ofDrawBitmapString(info, 30, 30);
+	compoundBody->draw();
 }
 
 //--------------------------------------------------------------
