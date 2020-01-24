@@ -14,9 +14,7 @@ private:
 public:
 	~ofxBox2dCompoundBody(){};
 	//------------------------------------------------
-	ofxBox2dCompoundBody()
-	{
-	};
+	ofxBox2dCompoundBody();
 	
 	//------------------------------------------------
 	void setup(b2World * b2dworld, protoBody protoBody);
@@ -24,10 +22,10 @@ public:
 	{
 	};
 
-	virtual void draw()
-	{
-	};
+	virtual void draw();
 	
+	ofVboMesh gpuCachedCompoundBody;
+
 	//------------------------------------------------
     //void addAttractionPoint(float x, float y, float amt=1);
     //void addAttractionPoint(ofVec2f pt, float amt=1);

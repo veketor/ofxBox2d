@@ -13,6 +13,7 @@ public:
 	protoBody getProtoBody(std::string nameInXml, std::string newName = "");
 private:
 	std::map<std::string, protoBody> _bodyProtoMap;
+	const size_t circleResolution = 16;
 };
 
 //#endif

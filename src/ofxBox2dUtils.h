@@ -21,6 +21,7 @@ struct protoBody
 	ofVec2f anchorPoint;
 	std::vector<protoFixture> fixtures;
 	b2BodyType type;
+	ofMesh mesh;
 
 	b2Body *create(b2World *world)
 	{

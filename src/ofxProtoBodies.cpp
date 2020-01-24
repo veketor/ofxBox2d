@@ -38,10 +38,11 @@ bool oxfProtoBodies::loadFromXml(std::string xmlFilePath)
 			tempFixture.filter_categoryBits = fixtureInfo.findFirst("filter_categoryBits").getIntValue();
 			tempFixture.filter_groupIndex = fixtureInfo.findFirst("filter_groupIndex").getIntValue();
 			tempFixture.filter_maskBits = fixtureInfo.findFirst("filter_maskBits").getIntValue();
+			tempFixture.isSensor = false;//get value from xml.
 			//std::cout << "\tdensity: " << density << " friction: " << friction << " restitution; " << restitution << "\n";
 			std::string fixtureInfoType = fixtureInfo.findFirst("fixture_type").getValue();
 			if (fixtureInfoType == "CIRCLE")
-			{
+			{	
 				std::cout << "\t\t[CIRCLE]\n";
 				tempFixture.fixture_type = b2Shape::e_circle;
 				ofXml circleXml = fixtureInfo.findFirst("circle");
@@ -54,7 +55,26 @@ bool oxfProtoBodies::loadFromXml(std::string xmlFilePath)
 				tempPoints.push_back(rV);
 				tempPoints.push_back(pV);
 				tempFixture.polygons.push_back(tempPoints);
+				ofMesh tempMesh;
+				tempMesh.addVertex(ofDefaultVec3(circleX, circleY, 0));
+				float cx, cy;
+				for (size_t i = 0; i < circleResolution; i++)
+				{
+					float angle = i * TWO_PI / circleResolution;
+					cx = circleX + circleRadious * cos(angle);
+					cy = circleY + circleRadious * sin(angle);
 
+					ofDefaultVec3 tempVertex(cx, cy, 0);
+					tempMesh.addVertex(tempVertex);
+					if (i % 2 != 0)
+					{
+						tempMesh.addIndex(0);
+						tempMesh.addIndex(i);
+						tempMesh.addIndex(i+1);
+					}
+					
+				}
+				tempBody.mesh.append(tempMesh);
 			}
 			else if (fixtureInfoType == "POLYGON")
 			{
