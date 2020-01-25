@@ -10,7 +10,7 @@ struct protoFixture
 	int filter_categoryBits;
 	int filter_groupIndex;
 	int filter_maskBits;
-	bool isSensor;//TODO: implement in loader.
+	bool isSensor;
 	b2Shape::Type fixture_type;
 	std::vector< std::vector<ofVec2f>> polygons;
 };

@@ -89,15 +89,16 @@ bool oxfProtoBodies::loadFromXml(std::string xmlFilePath)
 				tempFixture.fixture_type = b2Shape::e_polygon;
 				ofXml::Search polygonsXml = fixtureInfo.findFirst("polygons").find("polygon");
 				ofMesh tempMesh;
-				tempMesh.enableIndices();
-				tempMesh.setMode(OF_PRIMITIVE_LINE_LOOP);
-
 				for (auto &polygon : polygonsXml)
 				{
 					std::string polygonStr = polygon.getValue();
 					std::vector<std::string> polStr = ofSplitString(polygonStr, "  ,  ");
 					std::cout << "\t\t\t[points][" << polStr.size() << "]" << polygonStr << "\n";
 					std::vector<ofVec2f> tempPointsVector;
+					//Mesh creation objects
+					ofPolyline tempPolyLine;
+					ofPath path;
+					///////////////////////
 					for (size_t i = 0; i < polStr.size(); i++)
 					{
 						ofVec2f tempPoint;
@@ -105,8 +106,7 @@ bool oxfProtoBodies::loadFromXml(std::string xmlFilePath)
 						try
 						{
 							tempPoint.set(std::stof(tempValues.at(0)), stof(tempValues.at(1)));
-							tempMesh.addVertex(ofDefaultVec3(tempPoint.x, tempPoint.y, 0));
-							//tempMesh.addIndex(i);
+							path.lineTo(ofVec3f(stof(tempValues.at(0)), stof(tempValues.at(1), 0)));
 							std::cout << "\t\t\t Point at: (" << tempPoint.x << ", " << tempPoint.y << ")\n";
 						}
 						catch (const std::invalid_argument& ia) {
@@ -114,31 +114,11 @@ bool oxfProtoBodies::loadFromXml(std::string xmlFilePath)
 						}
 						tempPointsVector.push_back(tempPoint);
 					}
-
+					tempMesh = path.getTessellation();
+					tempBody.mesh.append(tempMesh);
 					int lastValidIndex = 0;
-					for (size_t gIndex = 0; gIndex < tempMesh.getNumVertices()/3; gIndex++)
-					{
-						tempMesh.addIndex(3* gIndex);
-						tempMesh.addIndex(3 * gIndex + 1);
-						lastValidIndex = 3 * gIndex + 2;
-						tempMesh.addIndex(lastValidIndex);
-					}
-					size_t unwindingNumVertex = tempMesh.getNumIndices() - lastValidIndex;
-					if (unwindingNumVertex == 1)
-					{						
-						tempMesh.addIndex(unwindingNumVertex + 1);
-						tempMesh.addIndex(unwindingNumVertex + 2);
-						tempMesh.addIndex(0);
-					}
-					else if (unwindingNumVertex == 2)
-					{
-						tempMesh.addIndex(unwindingNumVertex);
-						tempMesh.addIndex(unwindingNumVertex + 1);
-						tempMesh.addIndex(unwindingNumVertex + 2);
-					}
 					tempFixture.polygons.push_back(tempPointsVector);
 				}
-				tempBody.mesh.append(tempMesh);
 			}
 			tempBody.fixtures.push_back(tempFixture);
 		}

@@ -63,6 +63,6 @@ void ofxBox2dCompoundBody::draw()
 	ofRotateDeg(getRotation(), 0, 0, 1);
 	//gpuCachedCompoundBody.draw();
 	gpuCachedCompoundBody.drawWireframe();
-	gpuCachedCompoundBody.drawVertices();
+	//gpuCachedCompoundBody.drawVertices();
 	ofPopMatrix();
 }

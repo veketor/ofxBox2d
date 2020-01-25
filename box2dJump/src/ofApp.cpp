@@ -75,16 +75,14 @@ void ofApp::setup()
 	auto pb2 = bodiesLoader.getProtoBody("logo");
 	auto pb3 = bodiesLoader.getProtoBody("compuesto");
 	auto pb4 = bodiesLoader.getProtoBody("lollipop");
-	//createdBody = pb4.create(box2d.getWorld());
-	int a = 0;
-	a = 1;
+	auto pb5 = bodiesLoader.getProtoBody("baboon");
+
 	compoundBody = make_shared<ofxBox2dCompoundBody>();
-	compoundBody->setup(box2d.getWorld(), pb4);
+	compoundBody->setup(box2d.getWorld(), bodiesLoader.getProtoBody("coyote"));// pb5);
 	auto pos = compoundBody->getPosition();
 	auto isBody = compoundBody->isBody();
 	compoundBody->setPosition(ofVec2f(690, 300));
 	auto pos2 = compoundBody->getPosition();
-	a = 2;
 }
 
 //--------------------------------------------------------------
@@ -140,14 +138,17 @@ void ofApp::draw()
 	ofNoFill();
 	npc->draw();
 	platform->draw();
-	for (size_t i = 0; i < circles.size(); i++) {
+	for (size_t i = 0; i < circles.size(); i++) 
+	{
 		//ofFill();
 		circles[i].get()->draw();
 	}
 
-	for (size_t i = 0; i < rectangles.size(); i++) {
+	for (size_t i = 0; i < rectangles.size(); i++) 
+	{
 		rectangles[i].get()->draw();
 	}
+
 	ofFill();
 	prota->draw();
 	string info = "";
