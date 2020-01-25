@@ -38,7 +38,7 @@ bool oxfProtoBodies::loadFromXml(std::string xmlFilePath)
 			tempFixture.filter_categoryBits = fixtureInfo.findFirst("filter_categoryBits").getIntValue();
 			tempFixture.filter_groupIndex = fixtureInfo.findFirst("filter_groupIndex").getIntValue();
 			tempFixture.filter_maskBits = fixtureInfo.findFirst("filter_maskBits").getIntValue();
-			tempFixture.isSensor = false;//get value from xml.
+			tempFixture.isSensor = fixtureInfo.findFirst("isSensor");
 			//std::cout << "\tdensity: " << density << " friction: " << friction << " restitution; " << restitution << "\n";
 			std::string fixtureInfoType = fixtureInfo.findFirst("fixture_type").getValue();
 			if (fixtureInfoType == "CIRCLE")
