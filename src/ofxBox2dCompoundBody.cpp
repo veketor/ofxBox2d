@@ -58,7 +58,12 @@ void ofxBox2dCompoundBody::draw()
 {
 	ofPushMatrix();
 	auto p = getPosition();
-	ofTranslate(getPosition());
+	
+	auto disp = body->GetLocalCenter() * ofxBox2d::getScale();
+	ofVec2f translation = getPosition();
+	translation.x = translation.x - disp.x;
+	translation.y = translation.y - disp.y;
+	ofTranslate(translation);
 	auto r = getRotation();
 	ofRotateDeg(getRotation(), 0, 0, 1);
 	//gpuCachedCompoundBody.draw();
