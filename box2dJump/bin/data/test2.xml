@@ -48,7 +48,7 @@
 			<fixtures>
 
 				<fixture>
-					<density>2</density>
+					<density>1</density>
 					<friction>0</friction>
 					<restitution>0</restitution>
 					<filter_categoryBits>1</filter_categoryBits>

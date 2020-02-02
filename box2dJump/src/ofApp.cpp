@@ -69,6 +69,7 @@ void ofApp::setup()
 	key = ofxKeyboard::get();
 	moveState = MS_STOP;
 	auto loaded = bodiesLoader.loadFromXml("test2.xml");
+	loaded = bodiesLoader.loadFromXml("graphics\\physicsElements.xml");
 	auto pb = bodiesLoader.getProtoBody("coyote", "enemy");
 	auto pb0 = bodiesLoader.getProtoBody("coyote");
 	auto pb1 = bodiesLoader.getProtoBody("plataforma");
@@ -76,12 +77,19 @@ void ofApp::setup()
 	auto pb3 = bodiesLoader.getProtoBody("compuesto");
 	auto pb4 = bodiesLoader.getProtoBody("lollipop");
 	auto pb5 = bodiesLoader.getProtoBody("baboon");
+	auto pb6 = bodiesLoader.getProtoBody("bolaDeNieve");
+	auto pb7 = bodiesLoader.getProtoBody("cuchillas");
+	auto pb8 = bodiesLoader.getProtoBody("siluetaCiclotronDoble");
 
 	compoundBody = make_shared<ofxBox2dCompoundBody>();
-	compoundBody->setup(box2d.getWorld(), bodiesLoader.getProtoBody("coyote"));// pb5);
+	compoundBody->setup(box2d.getWorld(), bodiesLoader.getProtoBody("coyote"),0.75f);// pb5);
+	auto wc = compoundBody->body->GetWorldCenter() * ofxBox2d::getScale();
+	auto lc = compoundBody->body->GetLocalCenter() * ofxBox2d::getScale();
 	auto pos = compoundBody->getPosition();
 	auto isBody = compoundBody->isBody();
-	compoundBody->setPosition(ofVec2f(690, 300));
+	compoundBody->setPosition(ofVec2f(720, 300));
+	auto wc2 = compoundBody->body->GetWorldCenter() * ofxBox2d::getScale();
+	auto lc2 = compoundBody->body->GetLocalCenter() * ofxBox2d::getScale();
 	auto pos2 = compoundBody->getPosition();
 }
 
