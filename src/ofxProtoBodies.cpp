@@ -122,6 +122,14 @@ bool oxfProtoBodies::loadFromXml(std::string xmlFilePath)
 			}
 			tempBody.fixtures.push_back(tempFixture);
 		}
+		ofDefaultVertexType centroid = tempBody.mesh.getCentroid();
+		ofDefaultVertexType *vertexPointer = tempBody.mesh.getVerticesPointer();
+		for (size_t vertexNumber = 0; vertexNumber < tempBody.mesh.getNumVertices(); vertexNumber++)
+		{
+			vertexPointer->x = vertexPointer->x - centroid.x;
+			vertexPointer->y = vertexPointer->y - centroid.y;
+			vertexPointer++;
+		}
 		bodiesInXml.push_back(tempBody);
 		_bodyProtoMap.insert({ tempBody.name, tempBody });
 	}

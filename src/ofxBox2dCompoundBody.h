@@ -10,6 +10,7 @@ private:
 	int _numFixtures;
 	int _numShapes;
 	protoBody _original;
+	float _scaleFactor;
 	
 public:
 	~ofxBox2dCompoundBody(){};
@@ -17,7 +18,7 @@ public:
 	ofxBox2dCompoundBody();
 	
 	//------------------------------------------------
-	void setup(b2World * b2dworld, protoBody protoBody);
+	void setup(b2World * b2dworld, protoBody protoBody, float scaleFactor = 1.0f);
 	void setScale(float scale)
 	{
 	};

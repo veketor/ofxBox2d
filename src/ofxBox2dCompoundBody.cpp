@@ -4,13 +4,14 @@ ofxBox2dCompoundBody::ofxBox2dCompoundBody()
 {
 }
 
-void ofxBox2dCompoundBody::setup(b2World * b2dworld, protoBody protoBody)
+void ofxBox2dCompoundBody::setup(b2World * b2dworld, protoBody protoBody, float scaleFactor)
 {
 	if (b2dworld == NULL) {
 		ofLog(OF_LOG_NOTICE, "ofxBox2dCompoundBody :: setup : - must have a valid world -");
 		return;
 	}
-	double scale = 1.0f/ofxBox2d::getScale();
+	_scaleFactor = 1.0f;// scaleFactor;
+	double scale = scaleFactor/ofxBox2d::getScale();
 	gpuCachedCompoundBody = protoBody.mesh;
 	name = protoBody.name;
 	bodyDef.type = protoBody.type;
@@ -52,22 +53,89 @@ void ofxBox2dCompoundBody::setup(b2World * b2dworld, protoBody protoBody)
 			}
 		}
 	}
+	//return;
+	//Mesh creation based on body shapes
+	int totalVertexB2D = 0;
+	float minX = 1000;
+	float maxX = -1000;
+	float minY = 1000;
+	float maxY = -1000;
+	//clear the mesh
+	gpuCachedCompoundBody.clear();
+	for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext())
+	{
+		ofMesh tempMesh;
+		if (f->GetType() == b2Shape::e_polygon)
+		{
+			ofPath path;
+			b2PolygonShape *shape = (b2PolygonShape*)f->GetShape();
+			int nVertex = shape->GetVertexCount();
+			for (int nv = 0; nv < nVertex; nv++)
+			{
+				const b2Vec2 shapeVertex = shape->GetVertex(nv);
+				auto meshVertex = toOf(shapeVertex);
+				minX = min(minX, meshVertex.x);
+				maxX = max(maxX, meshVertex.x);
+
+				minY = min(minY, meshVertex.y);
+				maxY = max(maxY, meshVertex.y);
+
+				int a = 0;
+				totalVertexB2D++;
+				path.lineTo(ofVec3f(meshVertex.x, meshVertex.y, 0));
+			}
+			tempMesh = path.getTessellation();
+		}
+		else if (f->GetType() == b2Shape::e_circle)
+		{
+			size_t circleResolution = 32;
+			b2CircleShape *shape = (b2CircleShape*)f->GetShape();
+			ofVec2f pos = toOf(shape->m_p);
+			float radius = toOf(shape->m_radius);
+			for (size_t i = 0; i < circleResolution; i++)
+			{
+				float angle = i * TWO_PI / circleResolution;
+				float cx = pos.x + radius * cos(angle);
+				float cy = pos.y + radius * sin(angle);
+				ofDefaultVec3 tempVertex(cx, cy, 0);
+				//gpuCachedCompoundBody.addVertex(ofDefaultVec3(cx, cy, 0));
+				tempMesh.addVertex(ofDefaultVec3(cx, cy, 0));
+				
+				if (i>0)
+				{
+					tempMesh.addIndex(0);
+					tempMesh.addIndex(i);
+					tempMesh.addIndex(i + 1);
+					//gpuCachedCompoundBody.addIndex(0);
+					//gpuCachedCompoundBody.addIndex(i);
+					//gpuCachedCompoundBody.addIndex(i+1);
+				}
+			}
+		}
+		gpuCachedCompoundBody.append(tempMesh);
+		f->GetNext();
+	}
+	totalVertexB2D;
+	ofVec2f localCenter = toOf(body->GetLocalCenter());
+	auto centroid = gpuCachedCompoundBody.getCentroid();
+	ofDefaultVertexType *vertexPointer = gpuCachedCompoundBody.getVerticesPointer();
+	for (size_t vertexNumber = 0; vertexNumber < gpuCachedCompoundBody.getNumVertices(); vertexNumber++)
+	{
+		vertexPointer->x = vertexPointer->x - (localCenter.x);
+		vertexPointer->y = vertexPointer->y - (localCenter.y);
+		vertexPointer++;
+	}
+	auto centroid2 = gpuCachedCompoundBody.getCentroid();
 }
 
 void ofxBox2dCompoundBody::draw()
 {
+	if (!isBody()) return;
+	float scale = ofxBox2d::getScale();
 	ofPushMatrix();
-	auto p = getPosition();
-	
-	auto disp = body->GetLocalCenter() * ofxBox2d::getScale();
-	ofVec2f translation = getPosition();
-	translation.x = translation.x - disp.x;
-	translation.y = translation.y - disp.y;
-	ofTranslate(translation);
-	auto r = getRotation();
+	ofTranslate(getPosition().x, getPosition().y, 0);
 	ofRotateDeg(getRotation(), 0, 0, 1);
-	//gpuCachedCompoundBody.draw();
+	ofScale(_scaleFactor);
 	gpuCachedCompoundBody.drawWireframe();
-	//gpuCachedCompoundBody.drawVertices();
 	ofPopMatrix();
 }
