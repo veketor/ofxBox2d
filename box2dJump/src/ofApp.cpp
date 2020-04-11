@@ -1,5 +1,8 @@
 #include "ofApp.h"
 #include <typeinfo>
+#include <chrono>
+#include <thread>
+//#include <future>
 
 //--------------------------------------------------------------
 void ofApp::setup()
@@ -11,7 +14,7 @@ void ofApp::setup()
 	box2d.setGravity(0, 30);
 	box2d.createGround();
 	box2d.setFPS(60.0);
-	box2d.registerGrabbing();
+	box2d.registerGrabbing(&cam);
 	// register the listener so that we get the events
 	ofAddListener(box2d.contactStartEvents, this, &ofApp::contactStart);
 	ofAddListener(box2d.contactEndEvents, this, &ofApp::contactEnd);
@@ -41,21 +44,25 @@ void ofApp::setup()
 	rect->setPhysics(0.0, 0.0, 0.9);
 	rect->setup(box2d.getWorld(), 150, 300, 128, 32);
 	rect->setRotation(10);
+	bodyUserData* blockUserData = new bodyUserData;
+	blockUserData->entityType = 1; //1 is a block that permit go down (test)
+	blockUserData->stunnedTimeout = 10.0f;
+	rect->body->SetUserData(blockUserData);
 	rectangles.push_back(rect);
 
 	auto rectL = make_shared<ofxBox2dRect>();
 	rectL->setPhysics(0.0, 0.5, 0.9);
-	rectL->setup(box2d.getWorld(), 2, 2, 32, ofGetHeight()*2);
+	rectL->setup(box2d.getWorld(), 2, 2 + ofGetHeight()*0.5, 32, ofGetHeight());
 	rectangles.push_back(rectL);
 
 	auto rectR = make_shared<ofxBox2dRect>();
 	rectR->setPhysics(0.0, 0.5, 0.9);
-	rectR->setup(box2d.getWorld(), ofGetWindowWidth(), 2, 32, ofGetHeight() * 2);
+	rectR->setup(box2d.getWorld(), ofGetWindowWidth(), 2 + ofGetHeight()*0.5, 32, ofGetHeight());
 	rectangles.push_back(rectR);
 
 	auto rectT = make_shared<ofxBox2dRect>();
 	rectT->setPhysics(0.0, 0.5, 0.9);
-	rectT->setup(box2d.getWorld(), 32, 0, ofGetWindowWidth()*2, 32);
+	rectT->setup(box2d.getWorld(), ofGetWindowWidth()*0.5, 0, ofGetWindowWidth(), 32);
 	rectangles.push_back(rectT);
 		
 	prota = make_shared<ofxBox2dRect>();
@@ -69,7 +76,6 @@ void ofApp::setup()
 	key = ofxKeyboard::get();
 	moveState = MS_STOP;
 	auto loaded = bodiesLoader.loadFromXml("test2.xml");
-	loaded = bodiesLoader.loadFromXml("graphics\\physicsElements.xml");
 	auto pb = bodiesLoader.getProtoBody("coyote", "enemy");
 	auto pb0 = bodiesLoader.getProtoBody("coyote");
 	auto pb1 = bodiesLoader.getProtoBody("plataforma");
@@ -77,25 +83,45 @@ void ofApp::setup()
 	auto pb3 = bodiesLoader.getProtoBody("compuesto");
 	auto pb4 = bodiesLoader.getProtoBody("lollipop");
 	auto pb5 = bodiesLoader.getProtoBody("baboon");
-	auto pb6 = bodiesLoader.getProtoBody("bolaDeNieve");
-	auto pb7 = bodiesLoader.getProtoBody("cuchillas");
-	auto pb8 = bodiesLoader.getProtoBody("siluetaCiclotronDoble");
 
 	compoundBody = make_shared<ofxBox2dCompoundBody>();
-	compoundBody->setup(box2d.getWorld(), bodiesLoader.getProtoBody("coyote"),0.75f);// pb5);
-	auto wc = compoundBody->body->GetWorldCenter() * ofxBox2d::getScale();
-	auto lc = compoundBody->body->GetLocalCenter() * ofxBox2d::getScale();
+	compoundBody->setup(box2d.getWorld(), bodiesLoader.getProtoBody("logo"));// pb5);
 	auto pos = compoundBody->getPosition();
 	auto isBody = compoundBody->isBody();
-	compoundBody->setPosition(ofVec2f(720, 300));
-	auto wc2 = compoundBody->body->GetWorldCenter() * ofxBox2d::getScale();
-	auto lc2 = compoundBody->body->GetLocalCenter() * ofxBox2d::getScale();
+	compoundBody->setPosition(ofVec2f(690, 300));
 	auto pos2 = compoundBody->getPosition();
+
+	//camera
+	cam.removeAllInteractions();
+	//cam.addInteraction(ofEasyCam::TRANSFORM_ROTATE, OF_MOUSE_BUTTON_LEFT, OF_KEY_LEFT_CONTROL);
+	cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_XY, OF_MOUSE_BUTTON_LEFT, OF_KEY_ALT);
+	cam.addInteraction(ofEasyCam::TRANSFORM_TRANSLATE_Z, OF_MOUSE_BUTTON_RIGHT, OF_KEY_ALT);
+	cam.enableOrtho();
+	cam.setNearClip(-1000000);
+	cam.setFarClip(1000000);
+	cam.setVFlip(true);
+	cam.setAutoDistance(false);
+	cam.setPosition(glm::vec3(510, 250, 433));
+	//auto scale = cam.getScale();
+	int a= 0;
+	a = a;
+
 }
 
 //--------------------------------------------------------------
 void ofApp::update()
 {
+	if (key->isRelease(OF_KEY_F1))
+	{
+		if (box2d.getWorld()->GetGravity().y != 0)
+		{
+			box2d.setGravity(0, 0);
+		}
+		else
+		{
+			box2d.setGravity(0, 30);
+		}
+	}
 	box2d.update();
 	float lastFrameTime = ofGetLastFrameTime();
 	//std::cout << lastFrameTime << "\n";
@@ -106,9 +132,54 @@ void ofApp::update()
 	moveState = MS_STOP;
 	bool stopped = true;
 
+	if (key->isRelease(OF_KEY_DOWN))
+	{
+		bool _isOnPlatform = false;
+		for (b2ContactEdge* edge = prota->body->GetContactList(); edge; edge = edge->next)
+		{
+			bodyUserData* otherUserData = (bodyUserData*)edge->other->GetUserData();
+			if (otherUserData != nullptr)
+			{
+				if (otherUserData->entityType == 5 || otherUserData->entityType == 1)
+				_isOnPlatform = true;
+			}
+		}
+		if (_isOnPlatform)
+		{
+			auto fixtures = prota->body->GetFixtureList();
+			if (fixtures != nullptr)
+			{
+				std::cout << "Desactivando colisiones\n";
+				fixtures->SetSensor(true);
+				while (fixtures->GetNext())
+				{
+					fixtures->SetSensor(true);
+				}
+
+			}
+			//as a hack, after 0.25 seconds, change to non sensor.
+			//std::async(std::launch::async, [=]()
+			std::thread([this]
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds{ 250 });
+				auto fixtures = prota->body->GetFixtureList();
+				if (fixtures != nullptr)
+				{
+					std::cout << "Activando colisiones\n";
+					fixtures->SetSensor(false);
+					while (fixtures->GetNext())
+					{
+						fixtures->SetSensor(false);
+					}
+				}
+			}).detach();
+		}
+	}
+
 	if (key->isPushing(OF_KEY_RIGHT)) {
-		float impulse = b2Max(prota->body->GetLinearVelocity().x + 0.01f, 0.5f);
-		prota->body->ApplyLinearImpulse(b2Vec2(1, 0), prota->body->GetWorldCenter(), true);
+		float impulse = b2Min(b2Max(prota->body->GetLinearVelocity().x + 0.0001f, 0.8f), 1.0f);
+		std::cout << impulse << "\n";
+		prota->body->ApplyLinearImpulse(b2Vec2(impulse, 0), prota->body->GetWorldCenter(), true);
 		moveState = MS_RIGHT;
 		stopped = false;
 	}
@@ -124,6 +195,12 @@ void ofApp::update()
 		prota->body->SetLinearVelocity(b2Vec2(prota->body->GetLinearVelocity().x*0.85f, prota->body->GetLinearVelocity().y));
 	}
 
+	if (key->isRelease('r'))
+	{
+
+		cam.setPosition(glm::vec3(510, 250, 433));
+		cam.setScale(glm::vec3(1, 1, 1));
+	}
 	if (key->isRelease('z'))
 	{
 		auto time = key->getTimePressed('z');
@@ -137,12 +214,35 @@ void ofApp::update()
 		prota->body->ApplyLinearImpulse(b2Vec2(0, -jumpImpulse), prota->body->GetWorldCenter(), true);
 		//prota->enableGravity(false);
 	}
+	//Max Speed control
+	if (prota->body->GetLinearVelocity().x > 10)
+	{
+		prota->body->SetLinearVelocity(b2Vec2(10, prota->body->GetLinearVelocity().y));
+	}
+	else if (prota->body->GetLinearVelocity().x < -10)
+	{
+		prota->body->SetLinearVelocity(b2Vec2(-10, prota->body->GetLinearVelocity().y));
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::draw()
 {
 	ofDrawBitmapString("Cuerpos "+ ofToString(box2d.getBodyCount()), 10, 10);
+	string info = "";
+	info += "FPS: " + ofToString(ofGetFrameRate(), 1) + "\n";
+	ofSetHexColor(0x444342);
+	ofDrawBitmapString(info, 30, 30);
+	string camPos = ofToString(cam.getPosition().x) + ", " + ofToString(cam.getPosition().y) + ", " + ofToString(cam.getPosition().z);
+	ofDrawBitmapStringHighlight(camPos, 10, 50);
+	ofDrawBitmapStringHighlight("Use alt+MouseLeft/Right to move camera", 10, 70);
+	ofDrawBitmapStringHighlight("Use arrows and z key to control the actor", 10, 90);
+	auto scale = cam.getScale();
+	ofDrawBitmapStringHighlight("Scale factor: ("+ofToString(scale.x)+", "+ ofToString(scale.y) + ", " + ofToString(scale.z)+")", 10, 110);
+	ofDrawBitmapStringHighlight("PlayerSpeed: " + ofToString(prota->body->GetLinearVelocity().x), 10, 130);
+	ofDrawBitmapString("Press F1 to enable/disable gravity force", 10, 150);
+	ofDrawBitmapString("(" + ofToString(cam.screenToWorld({ mouseX, mouseY, 0 }).x) + ", " + ofToString(cam.screenToWorld({ mouseX, mouseY, 0 }).y) + ")", mouseX + 16, mouseY + 16);
+	cam.begin();
 	ofNoFill();
 	npc->draw();
 	platform->draw();
@@ -159,11 +259,34 @@ void ofApp::draw()
 
 	ofFill();
 	prota->draw();
-	string info = "";
-	info += "FPS: " + ofToString(ofGetFrameRate(), 1) + "\n";
-	ofSetHexColor(0x444342);
-	ofDrawBitmapString(info, 30, 30);
+
 	compoundBody->draw();
+	
+	/*
+	ofVboMesh mesh = compoundBody->gpuCachedCompoundBody;
+	auto vertices = mesh.getVertices();
+	auto bodypos = compoundBody->getPosition();
+	auto localCenter = compoundBody->body->GetLocalCenter() * box2d.getScale();
+	for (b2Fixture* f = compoundBody->body->GetFixtureList(); f; f = f->GetNext())
+	{
+		b2Shape::Type shapeType = f->GetType();
+		if (shapeType == b2Shape::e_circle)
+		{
+			b2CircleShape* circleShape = (b2CircleShape*)f->GetShape();
+			float radio = circleShape->m_radius;
+			float scala = box2d.getScale();
+			float r2 = radio * scala;
+			ofVec2f pos = compoundBody->getPosition();
+			int a;
+			a = 1;
+		}
+		else if (shapeType == b2Shape::e_polygon)
+		{
+			b2PolygonShape* polygonShape = (b2PolygonShape*)f->GetShape();
+		}
+	}
+	*/
+	cam.end();
 }
 
 //--------------------------------------------------------------

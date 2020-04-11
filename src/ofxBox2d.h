@@ -38,7 +38,7 @@ private:
 	int					particleIterations;
 	ofPoint				gravity;
 	static float		scale;
-	
+	ofEasyCam			*ptrToCam;
 	// Called when two fixtures begin to touch.
 	void BeginContact(b2Contact* contact) { 
 		static ofxBox2dContactArgs args;
@@ -134,7 +134,7 @@ public:
 #endif
 	
 	// grabbing shapes
-	void registerGrabbing();
+	void registerGrabbing(ofEasyCam *cam = nullptr);
 	void grabShapeDown(float x, float y, int id = -1 );		// -1 is reserved for mouse.
 	void grabShapeUp(float x, float y, int id = -1 );		// -1 is reserved for mouse.
 	void grabShapeDragged(float x, float y, int id = -1 );	// -1 is reserved for mouse.

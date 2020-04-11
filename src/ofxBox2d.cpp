@@ -194,7 +194,8 @@ void ofxBox2d::setContactListener(ofxBox2dContactListener * listener) {
 }
 
 // ------------------------------------------------------ grab shapes Events
-void ofxBox2d::registerGrabbing() {
+void ofxBox2d::registerGrabbing(ofEasyCam *cam) {
+	ptrToCam = cam;
 #ifdef TARGET_OPENGLES
 	ofAddListener(ofEvents().touchDown, this, &ofxBox2d::touchDown);
 	ofAddListener(ofEvents().touchMoved, this, &ofxBox2d::touchMoved);
@@ -218,13 +219,37 @@ void ofxBox2d::touchUp(ofTouchEventArgs &touch) {
 }
 #else
 void ofxBox2d::mousePressed(ofMouseEventArgs &e) {
-	grabShapeDown(e.x, e.y);
+	if (ptrToCam != nullptr)
+	{
+		glm::vec3 transformedMousePosition = ptrToCam->screenToWorld({ e.x, e.y, 0 });
+		grabShapeDown(transformedMousePosition.x, transformedMousePosition.y);
+	}
+	else
+	{
+		grabShapeDown(e.x, e.y);
+	}
 }
 void ofxBox2d::mouseDragged(ofMouseEventArgs &e) {
-	grabShapeDragged(e.x, e.y);
+	if (ptrToCam != nullptr)
+	{
+		glm::vec3 transformedMousePosition = ptrToCam->screenToWorld({ e.x, e.y, 0 });
+		grabShapeDragged(transformedMousePosition.x, transformedMousePosition.y);
+	}
+	else
+	{
+		grabShapeDragged(e.x, e.y);
+	}
 }
 void ofxBox2d::mouseReleased(ofMouseEventArgs &e) {
-	grabShapeUp(e.x, e.y);
+	if (ptrToCam != nullptr)
+	{
+		glm::vec3 transformedMousePosition = ptrToCam->screenToWorld({ e.x, e.y, 0 });
+		grabShapeUp(transformedMousePosition.x, transformedMousePosition.y);
+	}
+	else
+	{
+		grabShapeUp(e.x, e.y);
+	}
 }
 #endif
 

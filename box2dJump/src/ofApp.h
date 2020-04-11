@@ -53,4 +53,5 @@ class ofApp : public ofBaseApp{
 	private:
 		ofxKeyboard* key;
 		_moveState moveState;
+		ofEasyCam cam;
 };

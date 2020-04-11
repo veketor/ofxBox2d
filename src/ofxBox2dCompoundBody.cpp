@@ -2,6 +2,7 @@
 
 ofxBox2dCompoundBody::ofxBox2dCompoundBody()
 {
+	std::cout << "Test";
 }
 
 void ofxBox2dCompoundBody::setup(b2World * b2dworld, protoBody protoBody, float scaleFactor)
