@@ -91,6 +91,41 @@ void ofApp::setup()
 	compoundBody->setPosition(ofVec2f(690, 300));
 	auto pos2 = compoundBody->getPosition();
 
+	//PlayerRectCircleJoined
+	 //player
+	{
+		/*
+		auto rectL = make_shared<ofxBox2dRect>();
+		rectL->setPhysics(0.0, 0.5, 0.9);
+		rectL->setup(box2d.getWorld(), 2, 2 + ofGetHeight()*0.5, 32, ofGetHeight());
+		*/
+
+		/*
+		std::shared_ptr <ofxBox2dRect> chavBox;
+		shared_ptr<ofxBox2dCircle> chavCircle;
+		shared_ptr<ofxBox2dJoint> chavJoint;
+		*/
+
+		//chavBox->setDensity(0.001f);
+		chavBox = make_shared<ofxBox2dRect>();
+		chavBox->setup(box2d.getWorld(), 200, 200, 25, 37.5, 0);
+		chavBox->body->SetType(b2BodyType::b2_dynamicBody);
+		chavBox->setFixedRotation(true);
+
+		//chavCircle->setDensity(0.001f);
+		chavCircle = make_shared<ofxBox2dCircle>();
+		chavCircle->setup(box2d.getWorld(), 200, 225, 12.5f, false);
+		chavCircle->body->SetType(b2BodyType::b2_dynamicBody);
+		chavCircle->setFixedRotation(true);
+
+		bodyUserData* chavUserData = new bodyUserData;
+		chavUserData->entityType = 23; //23 mark the fixture as chav foot (23 for example...make an enum)
+		chavUserData->stunnedTimeout = 10.0f;
+		chavCircle->body->SetUserData(chavUserData);
+
+		chavJoint = make_shared<ofxBox2dRevoluteJoint>(box2d.getWorld(), chavBox->body, chavCircle->body, b2Vec2(0, box2d.toB2d(18.75f)), b2Vec2(0, 0));
+	}
+
 	//camera
 	cam.removeAllInteractions();
 	//cam.addInteraction(ofEasyCam::TRANSFORM_ROTATE, OF_MOUSE_BUTTON_LEFT, OF_KEY_LEFT_CONTROL);
@@ -243,49 +278,28 @@ void ofApp::draw()
 	ofDrawBitmapString("Press F1 to enable/disable gravity force", 10, 150);
 	ofDrawBitmapString("(" + ofToString(cam.screenToWorld({ mouseX, mouseY, 0 }).x) + ", " + ofToString(cam.screenToWorld({ mouseX, mouseY, 0 }).y) + ")", mouseX + 16, mouseY + 16);
 	cam.begin();
-	ofNoFill();
-	npc->draw();
-	platform->draw();
-	for (size_t i = 0; i < circles.size(); i++) 
-	{
-		//ofFill();
-		circles[i].get()->draw();
-	}
-
-	for (size_t i = 0; i < rectangles.size(); i++) 
-	{
-		rectangles[i].get()->draw();
-	}
-
-	ofFill();
-	prota->draw();
-
-	compoundBody->draw();
-	
-	/*
-	ofVboMesh mesh = compoundBody->gpuCachedCompoundBody;
-	auto vertices = mesh.getVertices();
-	auto bodypos = compoundBody->getPosition();
-	auto localCenter = compoundBody->body->GetLocalCenter() * box2d.getScale();
-	for (b2Fixture* f = compoundBody->body->GetFixtureList(); f; f = f->GetNext())
-	{
-		b2Shape::Type shapeType = f->GetType();
-		if (shapeType == b2Shape::e_circle)
+		ofNoFill();
+		npc->draw();
+		platform->draw();
+		for (size_t i = 0; i < circles.size(); i++) 
 		{
-			b2CircleShape* circleShape = (b2CircleShape*)f->GetShape();
-			float radio = circleShape->m_radius;
-			float scala = box2d.getScale();
-			float r2 = radio * scala;
-			ofVec2f pos = compoundBody->getPosition();
-			int a;
-			a = 1;
+			//ofFill();
+			circles[i].get()->draw();
 		}
-		else if (shapeType == b2Shape::e_polygon)
+
+		for (size_t i = 0; i < rectangles.size(); i++) 
 		{
-			b2PolygonShape* polygonShape = (b2PolygonShape*)f->GetShape();
+			rectangles[i].get()->draw();
 		}
-	}
-	*/
+
+		ofFill();
+		prota->draw();
+
+		compoundBody->draw();
+		
+		chavBox->draw();
+		chavCircle->draw();
+		
 	cam.end();
 }
 

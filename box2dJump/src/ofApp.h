@@ -50,6 +50,10 @@ class ofApp : public ofBaseApp{
 		b2Body* createdBody;
 		oxfProtoBodies bodiesLoader;
 		std::shared_ptr <ofxBox2dCompoundBody> compoundBody;
+		
+		std::shared_ptr <ofxBox2dRect> chavBox;
+		shared_ptr<ofxBox2dCircle> chavCircle;
+		shared_ptr<ofxBox2dRevoluteJoint> chavJoint;
 	private:
 		ofxKeyboard* key;
 		_moveState moveState;
